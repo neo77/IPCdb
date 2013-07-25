@@ -1,12 +1,44 @@
+#* Name: IPCdb
+#* Info: Human friendly IPC
+#* Author: Pawel Guspiel (neo77), <neo@cpan.org>
 package IPCdb;
 
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
 
+use MooseX::Declare;            # moose declare
+
+class IPCdb {
+    
+    #=------------------------------------------------------------------------( attributes )
+
+    has 'id' => (
+        is      => 'ro',
+        writer  => '_set_id',
+    );
+
+    
+    sub send_message {
+
+    }
+
+    sub receive_message {
+
+    }
+    
+    sub reply_message {
+
+    }
+
+    sub confirmation_message {
+
+    }
+
+
 =head1 NAME
 
-IPCdb - The great new IPCdb!
+IPCdb - Human friednly IPC
 
 =head1 VERSION
 
@@ -19,7 +51,8 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+The module is takeing care of whole communication between processes.
+It is the ground for other modules like IPCdb::Queues
 
 Perhaps a little code snippet.
 
@@ -39,7 +72,7 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =cut
 
-sub function1 {
+sub send {
 }
 
 =head2 function2
@@ -88,6 +121,10 @@ L<http://cpanratings.perl.org/d/IPCdb>
 =item * Search CPAN
 
 L<http://search.cpan.org/dist/IPCdb/>
+
+=item * Clone me from GitHub
+
+L<git://github.com/neo77/IPCdb.git>
 
 =back
 

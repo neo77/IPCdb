@@ -1,5 +1,5 @@
 ---
-abstract: 'The great new IPCdb!'
+abstract: 'Humanfriendly IPC communication'
 author:
   - 'Pawel Guspiel <neo@cpan.org>'
 build_requires:
