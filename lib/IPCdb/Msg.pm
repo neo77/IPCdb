@@ -1,27 +1,63 @@
 #* Name: IPCdb
 #* Info: Human friendly IPC
 #* Author: Pawel Guspiel (neo77), <neo@cpan.org>
-package IPCdb;
+
+package IPCdb::Msg;
 
 use 5.006;
 use strict;
 use warnings FATAL => 'all';
 
-use MooseX::Declare;            # moose declare
+our $VERSION = 1.0;
 
-class IPCdb {
+use Params::Dry qw(:short);         # to have nice parameters
+use IPCdb::IPCdb_h;                 # header file for IPCdb
+use Mouse;
     
     #=------------------------------------------------------------------------( attributes )
 
-    has 'id' => (
-        is      => 'ro',
-        writer  => '_set_id',
+    has 'id' => (                   #  
+        is        => 'ro',
+        writer    => '_id',
     );
 
-    
-    sub send_message {
+    has 'dbh' => (
+        is        => 'rw',
+    );
+
+    sub _insert_record {
 
     }
+    
+    sub _delete_record {
+
+    }
+    
+    sub _get_record {
+
+    }
+
+
+
+    sub _init_datatable {
+        my $self = __@_;
+        
+        my $p_sql_table = op 'sql_table';
+     
+        $self->dbh->do("CREATE TABLE $p_sqli_table ");
+    }
+    sub send_message {
+        my $self = __@_; 
+        
+        my $p_to_id     = rq 'to_id',   'String';       # receiver of the message
+        my $p_message   = rq 'message', 'String';       # message body
+        my $p_tags      = rq 'tags',    'List::String';       # message body
+
+
+        print "Message to: $p_to_id, text: $p_message\n";
+
+    }
+
 
     sub receive_message {
 
@@ -35,10 +71,12 @@ class IPCdb {
 
     }
 
+    send_message(to_id => 'Pawel', message => 'a mam to w dupie!');
 
+__END__
 =head1 NAME
 
-IPCdb - Human friednly IPC
+IPCdb::Msg - Human friednly IPC
 
 =head1 VERSION
 
@@ -56,9 +94,9 @@ It is the ground for other modules like IPCdb::Queues
 
 Perhaps a little code snippet.
 
-    use IPCdb;
+    use IPCdb::Msg;
 
-    my $foo = IPCdb->new();
+    my $foo = IPCdb::Msg->new();
     ...
 
 =head1 EXPORT
