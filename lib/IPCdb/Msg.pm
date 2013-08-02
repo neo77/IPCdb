@@ -23,10 +23,28 @@ use Mouse;
 
     has 'dbh' => (
         is        => 'rw',
+        writer    => '_dbh',
+    );
+
+    has 'sql_table' => (
+        is        => 'ro',
+        writer    => '_sql_table',
     );
 
     sub _insert_record {
+        my $self = __@_;
 
+        my $p_pairs = rq 'pairs', 'HASH';
+
+        my $o_sql_table = $self->$o_sql_table;
+        my $o_dbh       = $self->$o_dbh;
+
+        my (@keys, @values) = (keys %$p_pairs, values %$p_pairs);
+
+        $o_dbh->prepare("INSERT INTO `$o_sql_table` (".(join ',', @keys).') VALUES('.join(',', (('?') x scalar(@values))).')');
+		my $dbresult = $stm->execute(@values);
+
+	    $self->error("error during inserting record: ".$o_dbh->errstr) if $stm eq '0E0';
     }
     
     sub _delete_record {
@@ -44,18 +62,42 @@ use Mouse;
         
         my $p_sql_table = op 'sql_table';
      
-        $self->dbh->do("CREATE TABLE $p_sqli_table ");
+        $self->dbh->do(<<"EOS"
+            CREATE TABLE `$p_sql_table` (
+            `message_id` int(32) unsigned NOT NULL AUTO_INCREMENT COMMENT 'message id',
+            `from_id` varchar(64) NOT NULL COMMENT 'sender id',
+            `to_id` varchar(64) NOT NULL COMMENT 'receiver id',
+            `message` text NOT NULL COMMENT 'message text',
+            `message_tags` varchar(255) DEFAULT NULL COMMENT 'message tags',
+            `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+            PRIMARY KEY (`message_id`),
+            KEY `timestamp` (`timestamp`),
+            KEY `from_id` (`from_id`),
+            KEY `to_id` (`to_id`),
+            KEY `msg_type` (`msg_type`)
+            ) ENGINE=MyISAM DEFAULT CHARSET=utf8
+EOS
+            #`ttl` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            #`rtl` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        );
     }
+    
     sub send_message {
         my $self = __@_; 
         
-        my $p_to_id     = rq 'to_id',   'String';       # receiver of the message
-        my $p_message   = rq 'message', 'String';       # message body
-        my $p_tags      = rq 'tags',    'List::String';       # message body
+        my $p_to_id             = rq 'to_id',           'String';           # receiver of the message
+        my $p_message           = rq 'message',         'String';           # message body
+        my $p_message_tags      = rq 'message_tags',    'List::String';     # message tags
 
-
-        print "Message to: $p_to_id, text: $p_message\n";
-
+        $self->_insert_record(pairs => { 
+                                from_id => $self->from_id, 
+                                to_id   => $p_to_id, 
+                                message => $p_message, 
+                                message_tags => $p_message_tags 
+                            } 
+        ); 
+        
     }
 
 
